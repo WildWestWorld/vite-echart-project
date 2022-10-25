@@ -25,7 +25,7 @@
         </div>
         <div class="statistics-wrapper">
           <h2>图表</h2>
-          <div class="chart">图表容器</div>
+          <div class="chart" id="fourChart">图表容器</div>
         </div>
       </div>
     </div>
@@ -46,6 +46,8 @@ let ydata = ref([]);
 let chartThreeData = ref({});
 
 let chartTwoData = ref({});
+
+let chartFourData = ref({});
 
 // console.log(echartsApp);
 // console.log(axios);
@@ -83,6 +85,12 @@ async function fetchDataChartTwo() {
   chartTwoData = await request.get('/two/data');
 }
 
+// 图标四请求后获取的数据
+async function fetchDataChartFour() {
+  chartFourData = await request.get('/four/data');
+  console.log(chartFourData);
+}
+
 // 中国地图的请求后获取的数据
 async function getMapData() {
   let mapData = await axiosLocal.get('http://127.0.0.1:5173/map/china.json');
@@ -90,6 +98,87 @@ async function getMapData() {
 }
 
 onMounted(() => {
+  fetchDataChartFour().then(() => {
+    let myChartFour = echartsApp.init(document.getElementById('fourChart'));
+    console.warn(chartFourData);
+    myChartFour.setOption({
+      // 设置图表位置
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true,
+      },
+
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow',
+        },
+      },
+      //   图例
+      legend: {},
+      xAxis: {
+        type: 'category',
+        data: chartFourData.data.chartData.chartData.day,
+        // 设置坐标轴上的文本样式
+        axisLine: {
+          lineStyle: {
+            color: '#fff',
+          },
+        },
+      },
+      yAxis: {
+        type: 'value',
+      },
+      series: [
+        {
+          name: '服饰',
+          type: 'bar',
+          data: chartFourData.data.chartData.chartData.num.Clothes,
+          // 堆叠，给其他value也设置同名的total，数据就会堆叠到一块
+          stack: 'total',
+          //   显示数据文本
+          label: {
+            show: true,
+          },
+          //   强调
+          emphasis: {
+            focus: 'series',
+          },
+        },
+        {
+          name: '数码',
+          type: 'bar',
+          data: chartFourData.data.chartData.chartData.num.digit,
+          // 堆叠，给其他value也设置同名的total，数据就会堆叠到一块
+          stack: 'total',
+        },
+        {
+          name: '家电',
+          type: 'bar',
+          data: chartFourData.data.chartData.chartData.num.Electrical,
+          // 堆叠，给其他value也设置同名的total，数据就会堆叠到一块
+          stack: 'total',
+        },
+        {
+          name: '未知',
+          type: 'bar',
+          data: chartFourData.data.chartData.chartData.num.gear,
+          // 堆叠，给其他value也设置同名的total，数据就会堆叠到一块
+          stack: 'total',
+        },
+        {
+          name: '日化',
+          type: 'bar',
+          data: chartFourData.data.chartData.chartData.num.Chemicals,
+          // 堆叠，给其他value也设置同名的total，数据就会堆叠到一块
+          stack: 'total',
+        },
+      ],
+    });
+  });
+
   //图表二
   fetchDataChartTwo().then(() => {
     console.log(chartTwoData, '折线');
@@ -124,9 +213,21 @@ onMounted(() => {
         // 让折线与图标两边没有间隙
         boundaryGap: false,
         data: chartTwoData.data.chartData.chartData.day,
+        // 设置坐标轴上面的字体样式
+        axisLine: {
+          lineStyle: {
+            color: '#fff',
+          },
+        },
       },
       yAxis: {
         type: 'value',
+        // 设置坐标轴上面的字体样式
+        axisLine: {
+          lineStyle: {
+            color: '#fff',
+          },
+        },
       },
       series: [
         {
